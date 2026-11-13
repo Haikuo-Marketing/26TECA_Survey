@@ -20,6 +20,7 @@
     .sub {display:block; text-decoration:none; color:#c3eae7; padding:10px; font-size:14px}
     .notice {padding:13px; background:#213a4e; border-radius:10px; color:#bfd0dc; font-size:12px; line-height:1.75; text-align:left; margin-top:18px}
     .warn {color:#ffd9a2}
+    .instruction {font-size:14px;color:#d8e9ed;line-height:1.75} .instruction b {color:#8de0d6}
   </style>
 </head>
 <body>
@@ -30,47 +31,11 @@
     <p>感謝參加 2026 台北國際音響展<br>海國 LINE 好友問卷。</p>
     <div class="gift" aria-hidden="true">🎁</div>
     <p><strong>請返回海國 LINE 官方帳號<br>領取現場限定小禮物！</strong></p>
-    <a id="claim" class="cta" href="#" hidden>返回 LINE 領取小禮物</a>
-    <p id="setup-note" class="warn" hidden>領獎連結尚未設定，請先聯繫海國現場工作人員。</p>
-    <a id="back" class="sub" href="#" hidden>返回海國 LINE 官方帳號</a>
+    <a id="claim" class="cta" href="https://line.me/R/oaMessage/%40121qpmbi/?%E9%9F%B3%E9%9F%BF%E5%B1%95%E9%A0%98%E7%A6%AE">前往 LINE 領取小禮物</a>
+    <p class="instruction">開啟聊天室後，請按下<b>送出</b>「音響展領禮」，即可觸發漸強的領獎圖卡。</p>
+    <a class="sub" href="https://line.me/R/oaMessage/%40121qpmbi">無法帶入文字？直接開啟 LINE 聊天室</a>
     <div class="notice">※ 本頁為問卷完成後的導引畫面；僅開啟此頁不代表已驗證填答資格。請依漸強獎項管理的資格與現場核銷規則領取，每人限領一次，數量有限，送完為止。</div>
   </main>
-<script>
-  // === 部署前設定 ===
-  // 優先填入「漸強獎項管理」實際產生的領獎連結。
-  // 注意：要在漸強端驗證完成問卷的 UID 或兌換資格，不能只憑點連結發獎。
-  const MAAC_CLAIM_URL = '';
 
-  // 備用：海國 LINE 官方帳號聊天室連結，例如 https://lin.ee/xxxxxxxx
-  const LINE_OA_URL = '';
-  // ==================
-
-  const claim = document.getElementById('claim');
-  const back = document.getElementById('back');
-  const note = document.getElementById('setup-note');
-
-  function safeHttps(url) {
-    try { const u = new URL(url); return u.protocol === 'https:' ? u.toString() : ''; }
-    catch(e) { return ''; }
-  }
-
-  const maac = safeHttps(MAAC_CLAIM_URL);
-  const oa = safeHttps(LINE_OA_URL);
-  if (maac) {
-    claim.href = maac;
-    claim.hidden = false;
-    claim.textContent = '領取小禮物';
-  } else if (oa) {
-    claim.href = oa;
-    claim.hidden = false;
-    claim.textContent = '返回 LINE 領取小禮物';
-  } else {
-    note.hidden = false;
-  }
-  if (oa && oa !== maac) {
-    back.href = oa;
-    back.hidden = false;
-  }
-</script>
 </body>
 </html>
