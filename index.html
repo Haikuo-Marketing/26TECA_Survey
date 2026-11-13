@@ -35,6 +35,7 @@
   const LIFF_ID = '2012141412-0S2pQndE';
   const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdKhj6l_Gn0A549kRz8SOLnR8Qqtt5icyPG1IgQTkXbx8-ezQ/viewform';
   const UID_ENTRY = 'entry.96961763';
+  const CHECK_API = 'https://script.google.com/macros/s/AKfycbwhLeBD4cj_gLx50mXoBrK2OC8GPp5LxCKRpS0LyPlz1U2XcVYcV7ArAMZJ_Ag5iUEM/exec';
 
   const status = document.getElementById('status');
   const retry = document.getElementById('retry');
@@ -64,6 +65,13 @@
       if (!/^U[0-9a-f]{32}$/i.test(uid || '')) {
         throw new Error('未能取得有效的 LINE UID，請重新登入後嘗試。');
       }
+      status.textContent = '正在確認是否已填寫過問卷…';
+      const already = await checkSubmitted(uid);
+      if (already) {
+        spinner.style.display = 'none';
+        status.textContent = '您已經完成本次音響展問卷，感謝參與！每位 LINE 好友限填一次，請勿重複領取小禮物。';
+        return;
+      }
       const url = new URL(FORM_URL);
       url.searchParams.set('usp', 'pp_url');
       url.searchParams.set(UID_ENTRY, uid);
@@ -74,6 +82,36 @@
       errorState(err && err.message ? err.message : '連線失敗，請重新嘗試。');
     }
   }
+  function checkSubmitted(uid) {
+    return new Promise((resolve, reject) => {
+      if (!CHECK_API.startsWith('https://script.google.com/macros/s/')) {
+        reject(new Error('尚未設定 UID 檢查網址，請先完成 Apps Script 部署。'));
+        return;
+      }
+      const cb = 'haiguoCheck' + Date.now() + Math.floor(Math.random() * 100000);
+      const script = document.createElement('script');
+      let finished = false;
+      const timer = setTimeout(() => finish(new Error('UID 查詢逾時，請稍後重試。')), 12000);
+      function finish(err, data) {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timer);
+        delete window[cb];
+        script.remove();
+        if (err) reject(err);
+        else if (!data || !data.ok) reject(new Error(data?.message || 'UID 查詢失敗'));
+        else resolve(Boolean(data.submitted));
+      }
+      window[cb] = result => finish(null, result);
+      script.onerror = () => finish(new Error('無法連接 UID 查詢服務'));
+      const u = new URL(CHECK_API);
+      u.searchParams.set('uid', uid);
+      u.searchParams.set('callback', cb);
+      script.src = u.toString();
+      document.head.appendChild(script);
+    });
+  }
+
   retry.addEventListener('click', start);
   start();
 </script>
